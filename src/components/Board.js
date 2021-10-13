@@ -7,7 +7,7 @@ export default function Board({ squares, onClick }) {
     <div>
       <Grid sx={{ maxWidth: 600, minWidth: 600, margin: "auto" }}>
         {squares.map((square, i) => (
-          <Square key={i} value={square} onClick={() => onClick(i)}></Square>
+          <Square key={i} symbol={square} onClick={() => onClick(i)}></Square>
         ))}
       </Grid>
     </div>
