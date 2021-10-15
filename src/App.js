@@ -1,33 +1,33 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Button from "@mui/material/Button";
 import CloseIcon from "@mui/icons-material/Close";
 import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import TextField from "@mui/material/TextField";
-import Autocomplete from "@mui/material/Autocomplete";
+
 import Board from "./components/Board";
-const difficulties = [
-  "1 - Super Easy",
-  "2 - Very Easy",
-  "3 - Easy",
-  "4 - Normal",
-  "5 - Kinda Hard",
-  "6 - Hard",
-  "7 - Very Hard",
-  "8 - Super Hard",
-  "9 - Impossible",
-];
+import {
+  ThemeProvider,
+  createTheme,
+  Switch,
+  CssBaseline,
+  Box,
+} from "@mui/material";
+import { Icon } from "@mui/material";
+import Brightness7Icon from "@mui/icons-material/Brightness7";
+import Brightness4Icon from "@mui/icons-material/Brightness4";
+import ScoreBoard from "./components/ScoreBoard";
 
 function App() {
   const [board, setBoard] = useState(Array(9).fill(null));
   const [logicArray, setLogicArray] = useState(Array(9).fill(0));
   const [isPlayer, setIsPlayer] = useState(true); // T - player first | F - AI first
-  const [difficulty, setDifficulty] = useState(difficulties[0]);
+  const [difficulty, setDifficulty] = useState(1);
   const [playerScore, setPlayerScore] = useState(0);
   const [aiScore, setAiScore] = useState(0);
   const [tie, setTie] = useState(0);
+  const [darkMode, setDarkMode] = useState(false);
 
   const to2DArray = (inputArray) => {
     let output = [
@@ -174,15 +174,17 @@ function App() {
   const handleMove = (i) => {
     const boardCopy = [...board];
 
-    // Player move
-    //if (isPlayer) {
     if (logicArray[i] || getWinner(to2DArray(logicArray)) !== 0) return;
-    boardCopy[i] = CloseIcon;
-    logicArray[i] = 1;
-    setIsPlayer(!isPlayer);
-    setBoard([...boardCopy]);
-    console.log("Player made move!");
-    //}
+
+    // Player move
+    if (isPlayer) {
+      if (logicArray[i] || getWinner(to2DArray(logicArray)) !== 0) return;
+      boardCopy[i] = CloseIcon;
+      logicArray[i] = 1;
+      setIsPlayer(!isPlayer);
+      setBoard([...boardCopy]);
+      console.log("Player made move!");
+    }
     // // AI move
     // else {
     //   let j = getBestMove(to2DArray(logicArray));
@@ -232,44 +234,73 @@ function App() {
     setIsPlayer(true);
   };
 
+  const lightTheme = createTheme({
+    palette: {
+      mode: "light",
+      background: {
+        default: "#FCF8EC",
+      },
+      primary: {
+        main: "#456268",
+      },
+    },
+  });
+
+  const darkTheme = createTheme({
+    palette: {
+      mode: "light",
+      background: {
+        default: "#1B262C",
+      },
+      primary: {
+        main: "#46B5D1",
+      },
+      secondary: {
+        main: "#0F4C75",
+      },
+    },
+  });
+
   return (
-    <div>
+    <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
+      <CssBaseline />
       <AppBar
         position="static"
-        sx={{ maxWidth: 800, minWidth: 600, margin: "auto", marginBottom: 5 }}
+        sx={{ minWidth: 800, margin: "auto", marginBottom: 5 }}
       >
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             TIC-TAC-TOE
           </Typography>
-          <Autocomplete
-            value={difficulty}
-            onChange={(event, newValue) => {
-              setDifficulty(newValue);
-            }}
-            options={difficulties}
-            size="small"
-            sx={{ width: 230 }}
-            renderInput={(params) => (
-              <TextField {...params} label="Difficulty" />
-            )}
-          ></Autocomplete>
           {!isPlayer && (
             <Button color="inherit" onClick={handleAiMove} sx={{ margin: 1 }}>
-              Get Move
+              Get AI Move
             </Button>
           )}
-          <Button color="inherit" onClick={handleReset} sx={{ margin: 1 }}>
-            Reset Game
-          </Button>
+          <Icon component={darkMode ? Brightness4Icon : Brightness7Icon} />
+          <Switch
+            checked={darkMode}
+            onChange={() => setDarkMode(!darkMode)}
+            color="secondary"
+          />
         </Toolbar>
       </AppBar>
-      <Board squares={board} onClick={handleMove} />
-      <Typography>Player Wins: {playerScore}</Typography>
-      <Typography>AI Wins: {aiScore}</Typography>
-      <Typography>Tie: {tie}</Typography>
-      <Typography>Player: {isPlayer.toString()}</Typography>
-    </div>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          margin: "auto",
+          maxWidth: 1500,
+        }}
+      >
+        <div style={{ width: "70%" }}>
+          <Board squares={board} onClick={handleMove} />
+        </div>
+        <div style={{ width: "30%" }}>
+          <ScoreBoard handleReset={handleReset} setDiff={setDifficulty} />
+        </div>
+      </Box>
+    </ThemeProvider>
   );
 }
 
