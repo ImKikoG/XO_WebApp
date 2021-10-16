@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { List, Box, ListItem, ListItemButton, Button } from "@mui/material";
+import { List, Box, ListItem, Button, Typography } from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
+import { border } from "@mui/system";
 
 const difficulties = [
   "1 - Super Easy",
@@ -17,7 +18,15 @@ const difficulties = [
   "9 - Impossible",
 ];
 
-export default function ScoreBoard({ handleReset, setDiff }) {
+export default function ScoreBoard({
+  handleReset,
+  setDiff,
+  isPlayer,
+  handleAiMove,
+  playerScore,
+  aiScore,
+  tie,
+}) {
   const [difficulty, setDifficulty] = useState(difficulties[0]);
 
   const handleChange = (value) => {
@@ -25,7 +34,15 @@ export default function ScoreBoard({ handleReset, setDiff }) {
     setDiff(value);
   };
   return (
-    <Box sx={{ maxWidth: 500 }}>
+    <Box
+      sx={{
+        maxWidth: 300,
+        backgroundColor: "secondary.main",
+        border: 2,
+        borderColor: "primary.main",
+        borderRadius: 2,
+      }}
+    >
       <List>
         <ListItem>
           <div style={{ width: 200 }}>
@@ -58,6 +75,25 @@ export default function ScoreBoard({ handleReset, setDiff }) {
           >
             Reset Game
           </Button>
+          {!isPlayer && (
+            <Button
+              sx={{ marginLeft: 1 }}
+              color="primary"
+              variant="contained"
+              onClick={handleAiMove}
+            >
+              Get AI Move
+            </Button>
+          )}
+        </ListItem>
+        <ListItem>
+          <Typography color="primary">Player score: {playerScore}</Typography>
+        </ListItem>
+        <ListItem>
+          <Typography color="primary">AI score: {aiScore}</Typography>
+        </ListItem>
+        <ListItem>
+          <Typography color="primary">Tie: {tie}</Typography>
         </ListItem>
       </List>
     </Box>

@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import Button from "@mui/material/Button";
+import React, { useState, useEffect } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
+import Backdrop from "@mui/material/Backdrop";
 
 import Board from "./components/Board";
 import {
@@ -13,6 +13,10 @@ import {
   Switch,
   CssBaseline,
   Box,
+  Button,
+  List,
+  ListItem,
+  Stack,
 } from "@mui/material";
 import { Icon } from "@mui/material";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
@@ -28,6 +32,19 @@ function App() {
   const [aiScore, setAiScore] = useState(0);
   const [tie, setTie] = useState(0);
   const [darkMode, setDarkMode] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [resultVisible, setResultVisible] = useState(false);
+  const [playerWin, setPlayerWin] = useState(false);
+  const [aiWin, setAiWin] = useState(false);
+  const [tieGame, setTieGame] = useState(false);
+
+  useEffect(() => {
+    setMenuVisible(true);
+    setResultVisible(false);
+    setPlayerWin(false);
+    setAiWin(false);
+    setTieGame(false);
+  }, []);
 
   const to2DArray = (inputArray) => {
     let output = [
@@ -199,10 +216,20 @@ function App() {
     // Check if there is a winner
     if (getWinner(to2DArray(logicArray)) !== 0) {
       if (getWinner(to2DArray(logicArray)) === 1) {
+        setPlayerWin(true);
         setPlayerScore(playerScore + 1);
+        setResultVisible(true);
       }
-      if (getWinner(to2DArray(logicArray)) === -1) setAiScore(aiScore + 1);
-      if (getWinner(to2DArray(logicArray)) === 2) setTie(tie + 1);
+      if (getWinner(to2DArray(logicArray)) === -1) {
+        setAiWin(true);
+        setAiScore(aiScore + 1);
+        setResultVisible(true);
+      }
+      if (getWinner(to2DArray(logicArray)) === 2) {
+        setTieGame(true);
+        setTie(tie + 1);
+        setResultVisible(true);
+      }
       return;
     }
   };
@@ -220,10 +247,20 @@ function App() {
     // Check if there is a winner
     if (getWinner(to2DArray(logicArray)) !== 0) {
       if (getWinner(to2DArray(logicArray)) === 1) {
+        setPlayerWin(true);
         setPlayerScore(playerScore + 1);
+        setResultVisible(true);
       }
-      if (getWinner(to2DArray(logicArray)) === -1) setAiScore(aiScore + 1);
-      if (getWinner(to2DArray(logicArray)) === 2) setTie(tie + 1);
+      if (getWinner(to2DArray(logicArray)) === -1) {
+        setAiWin(true);
+        setAiScore(aiScore + 1);
+        setResultVisible(true);
+      }
+      if (getWinner(to2DArray(logicArray)) === 2) {
+        setTieGame(true);
+        setTie(tie + 1);
+        setResultVisible(true);
+      }
       return;
     }
   };
@@ -234,6 +271,14 @@ function App() {
     setIsPlayer(true);
   };
 
+  const handleContinue = () => {
+    setPlayerWin(false);
+    setAiWin(false);
+    setTieGame(false);
+    setResultVisible(false);
+    handleReset();
+  };
+
   const lightTheme = createTheme({
     palette: {
       mode: "light",
@@ -242,6 +287,9 @@ function App() {
       },
       primary: {
         main: "#456268",
+      },
+      secondary: {
+        main: "#D0E8F2",
       },
     },
   });
@@ -256,7 +304,7 @@ function App() {
         main: "#46B5D1",
       },
       secondary: {
-        main: "#0F4C75",
+        main: "#204051",
       },
     },
   });
@@ -272,11 +320,6 @@ function App() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             TIC-TAC-TOE
           </Typography>
-          {!isPlayer && (
-            <Button color="inherit" onClick={handleAiMove} sx={{ margin: 1 }}>
-              Get AI Move
-            </Button>
-          )}
           <Icon component={darkMode ? Brightness4Icon : Brightness7Icon} />
           <Switch
             checked={darkMode}
@@ -297,9 +340,61 @@ function App() {
           <Board squares={board} onClick={handleMove} />
         </div>
         <div style={{ width: "30%" }}>
-          <ScoreBoard handleReset={handleReset} setDiff={setDifficulty} />
+          <ScoreBoard
+            handleReset={handleReset}
+            setDiff={setDifficulty}
+            isPlayer={isPlayer}
+            handleAiMove={handleAiMove}
+            playerScore={playerScore}
+            aiScore={aiScore}
+            tie={tie}
+          />
         </div>
       </Box>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={menuVisible}
+      >
+        <Stack spacing={2} alignItems="center" justifyContent="flex-start">
+          <Typography variant="h2" sx={{ marginBottom: 5 }}>
+            WELCOME TO TIC-TAC-TOE
+          </Typography>
+          <Button
+            sx={{ width: 200 }}
+            variant="contained"
+            onClick={() => setMenuVisible(false)}
+          >
+            LOGIN
+          </Button>
+          <Button
+            sx={{ width: 200 }}
+            variant="contained"
+            onClick={() => setMenuVisible(false)}
+          >
+            REGISTER
+          </Button>
+          <Button
+            sx={{ width: 200 }}
+            variant="contained"
+            onClick={() => setMenuVisible(false)}
+          >
+            PLAY AS GUEST
+          </Button>
+        </Stack>
+      </Backdrop>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={resultVisible}
+      >
+        <Stack spacing={2} alignItems="center" justifyContent="flex-start">
+          {playerWin && <Typography variant="h1">YOU WIN</Typography>}
+          {aiWin && <Typography variant="h1">YOU LOSE</Typography>}
+          {tieGame && <Typography variant="h1">TIE</Typography>}
+          <Button color="primary" variant="contained" onClick={handleContinue}>
+            CONTINUE
+          </Button>
+        </Stack>
+      </Backdrop>
     </ThemeProvider>
   );
 }
